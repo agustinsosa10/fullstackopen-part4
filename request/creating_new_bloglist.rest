@@ -2,7 +2,7 @@ POST http://localhost:3003/api/blogs
 Content-Type: application/json
 
 {
-  "title": "otro libro",
+  "title": "despues de refactorizar",
   "author": "de chelo",
   "url": "test2.com",
   "likes": 50
