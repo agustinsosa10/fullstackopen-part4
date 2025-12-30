@@ -56,6 +56,26 @@ test("un nuevo blog es agregado", async () => {
   assert(blogs.includes('testeando prueba'))
 });
 
+test('los likes por defecto seran 0', async () => {
+    const newBlog = {
+    title: "testeando prueba",
+    author: "chelo sosa",
+    url: "http://test.com",
+  };
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+
+  const response = await api.get('/api/blogs')
+  const likeOfBlogs = response.body.map (res => res.likes)
+  console.log(likeOfBlogs[2])
+
+  assert.strictEqual(likeOfBlogs[2], 0)
+})
+
 after(async () => {
   await mongoose.connection.close();
 });
