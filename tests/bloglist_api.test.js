@@ -44,37 +44,53 @@ test("un nuevo blog es agregado", async () => {
   };
 
   await api
-    .post('/api/blogs')
+    .post("/api/blogs")
     .send(newBlog)
     .expect(201)
-    .expect('Content-Type', /application\/json/)
+    .expect("Content-Type", /application\/json/);
 
-  const response = await api.get('/api/blogs')
-  const blogs = response.body.map ( res => res.title)
-  
-  assert.strictEqual(response.body.length, helper.initialBlogs.length + 1)
-  assert(blogs.includes('testeando prueba'))
+  const response = await api.get("/api/blogs");
+  const blogs = response.body.map((res) => res.title);
+
+  assert.strictEqual(response.body.length, helper.initialBlogs.length + 1);
+  assert(blogs.includes("testeando prueba"));
 });
 
-test('los likes por defecto seran 0', async () => {
-    const newBlog = {
+test("los likes por defecto seran 0", async () => {
+  const newBlog = {
     title: "testeando prueba",
     author: "chelo sosa",
     url: "http://test.com",
   };
 
   await api
-    .post('/api/blogs')
+    .post("/api/blogs")
     .send(newBlog)
     .expect(201)
-    .expect('Content-Type', /application\/json/)
+    .expect("Content-Type", /application\/json/);
+
+  const response = await api.get("/api/blogs");
+  const likeOfBlogs = response.body.map((res) => res.likes);
+  console.log(likeOfBlogs[2]);
+
+  assert.strictEqual(likeOfBlogs[2], 0);
+});
+
+test("blog sin titulo o url no es agregado", async () => {
+  const newBlog = {
+    author: "chelo sosa",
+    url: "http://test.com",
+    likes: 2,
+  };
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
 
   const response = await api.get('/api/blogs')
-  const likeOfBlogs = response.body.map (res => res.likes)
-  console.log(likeOfBlogs[2])
-
-  assert.strictEqual(likeOfBlogs[2], 0)
-})
+  assert.strictEqual(response.body.length, helper.initialBlogs.length)
+});
 
 after(async () => {
   await mongoose.connection.close();
