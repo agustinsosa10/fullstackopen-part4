@@ -31,6 +31,13 @@ test('devuelve la cantidad de notas correctas', async () => {
     
 })
 
+test('el identificador se llama id', async () => {
+    
+    const response = await api.get('/api/blogs')
+    assert.ok(response.body[0].id)
+})
+
+
 after(async () => {
     await mongoose.connection.close()
 })
