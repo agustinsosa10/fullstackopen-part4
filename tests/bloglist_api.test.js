@@ -76,7 +76,7 @@ test("los likes por defecto seran 0", async () => {
   assert.strictEqual(likeOfBlogs[2], 0);
 });
 
-test("blog sin titulo o url no es agregado", async () => {
+test("blog sin titulo o url no es agregado, status 400", async () => {
   const newBlog = {
     author: "chelo sosa",
     url: "http://test.com",
@@ -91,6 +91,50 @@ test("blog sin titulo o url no es agregado", async () => {
   const response = await api.get('/api/blogs')
   assert.strictEqual(response.body.length, helper.initialBlogs.length)
 });
+
+test('se elimina un determinado blog', async () => {
+
+  const blogs = await helper.blogsInDb()
+  const blogToDelete = blogs[0]
+
+  await api
+    .delete(`/api/blogs/${blogToDelete.id}`)
+    .expect(204)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const titles = blogsAtEnd.map( blogs => blogs.title)
+
+  assert(!titles.includes(blogToDelete.title))
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
+})
+
+test('se actualiza una nota correctamente', async () => {
+
+  const blogs = await helper.blogsInDb()
+  const blogToUpdate = blogs[0]
+  console.log('blog a modificar: ', blogToUpdate)
+  const updatedBlog = {
+    title: 'test',
+    author: "chelo sosa",
+    url: "http://test.com",
+    likes: 2,
+  }
+
+  await api
+    .put(`/api/blogs/${blogToUpdate.id}`)
+    .send(updatedBlog)
+    .expect(200)
+    .expect("Content-Type", /application\/json/)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  console.log(blogsAtEnd)
+  const updated = blogsAtEnd.find( blog => blog.id === blogToUpdate.id)
+  console.log(updated)
+
+  assert.strictEqual(updated.title, updatedBlog.title)
+  assert.strictEqual(updated.author, updatedBlog.author)
+  assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
+})
 
 after(async () => {
   await mongoose.connection.close();
